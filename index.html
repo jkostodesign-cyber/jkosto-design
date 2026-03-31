@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jill Olsen Architecture</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Helvetica+Neue:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1714;
+      --ivory: #f5f2ed;
+      --warm-grey: #9a9590;
+      --accent: #b8a98a;
+      --rule: rgba(26,23,20,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--ivory);
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* --- CURSOR --- */
+    body { cursor: none; }
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 10px; height: 10px;
+      background: var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+      mix-blend-mode: multiply;
+    }
+    #cursor.expand {
+      width: 56px; height: 56px;
+      background: var(--accent);
+      mix-blend-mode: multiply;
+    }
+
+    /* --- HEADER --- */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 3.5rem;
+      mix-blend-mode: normal;
+      transition: background 0.4s ease, padding 0.4s ease;
+    }
+    header.scrolled {
+      background: rgba(245,242,237,0.92);
+      backdrop-filter: blur(12px);
+      padding: 1.2rem 3.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.35rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      line-height: 1;
+    }
+    .logo span {
+      display: block;
+      font-size: 0.62rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      letter-spacing: 0.38em;
+      color: var(--warm-grey);
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      gap: 3rem;
+      align-items: center;
+    }
+    nav a {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.35s ease;
+    }
+    nav a:hover::after { width: 100%; }
+
+    /* --- HERO --- */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #2a2520 0%, #3d3830 40%, #1a1714 100%);
+      z-index: 0;
+    }
+
+    /* Architectural line grid overlay */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.06;
+      background-image:
+        linear-gradient(to right, #f5f2ed 1px, transparent 1px),
+        linear-gradient(to bottom, #f5f2ed 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+
+    /* Image placeholder zone */
+    .hero-image-area {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .hero-photo-placeholder {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease;
+      background: transparent;
+    }
+
+    /* Diagonal split overlay */
+    .hero-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background: linear-gradient(
+        to bottom,
+        rgba(26,23,20,0.08) 0%,
+        rgba(26,23,20,0.12) 50%,
+        rgba(26,23,20,0.65) 100%
+      );
+    }
+
+    /* Thin rule lines left side */
+    .hero-rule-left {
+      position: absolute;
+      top: 22%;
+      left: 3.5rem;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      animation: fadeInLeft 1.2s ease 0.8s forwards;
+    }
+    .hero-rule-left .rl { width: 1px; background: var(--accent); }
+    .hero-rule-left .rl-long { height: 80px; }
+    .hero-rule-left .rl-short { height: 20px; }
+
+    /* Photo placeholder tag */
+    .photo-tag {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeIn 1s ease 0.4s forwards;
+    }
+    .photo-tag .icon {
+      width: 56px; height: 56px;
+      border: 1px solid rgba(245,242,237,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .photo-tag .icon svg {
+      width: 22px; height: 22px;
+      stroke: rgba(245,242,237,0.5);
+      fill: none;
+      stroke-width: 1.2;
+    }
+    .photo-tag p {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.4);
+    }
+
+    /* Hero content bottom-left */
+    .hero-content {
+      position: relative;
+      z-index: 6;
+      padding: 0 3.5rem 5rem;
+      max-width: 740px;
+    }
+
+    .hero-label {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.65rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.3s forwards;
+    }
+    .hero-label::before {
+      content: '';
+      display: block;
+      width: 32px; height: 1px;
+      background: var(--accent);
+    }
+
+    .hero-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(3.2rem, 6.5vw, 6rem);
+      line-height: 1.04;
+      color: var(--ivory);
+      letter-spacing: -0.01em;
+      margin-bottom: 2.4rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.55s forwards;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      color: rgba(245,242,237,0.55);
+      margin-bottom: 3rem;
+      line-height: 1.7;
+      max-width: 380px;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.75s forwards;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 2.4rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.95s forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--ivory);
+      border: none;
+      padding: 1.1rem 2.4rem;
+      text-decoration: none;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.35s ease;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: translateX(-101%);
+      transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary svg {
+      position: relative; z-index: 1;
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.5;
+      transition: transform 0.3s ease;
+    }
+    .btn-primary:hover svg { transform: translateX(4px); }
+
+    .btn-text {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.55);
+      text-decoration: none;
+      cursor: none;
+      border-bottom: 1px solid rgba(245,242,237,0.2);
+      padding-bottom: 2px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .btn-text:hover { color: var(--ivory); border-color: var(--accent); }
+
+    /* Scrolling indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      right: 3.5rem;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeIn 1s ease 1.4s forwards;
+    }
+    .scroll-indicator span {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.58rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.35);
+      writing-mode: vertical-rl;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* --- MARQUEE STRIP --- */
+    .marquee-strip {
+      background: var(--ink);
+      overflow: hidden;
+      padding: 1rem 0;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 22s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      padding: 0 2.5rem;
+      white-space: nowrap;
+    }
+    .marquee-item span {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: rgba(245,242,237,0.45);
+      letter-spacing: 0.04em;
+    }
+    .marquee-dot {
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* --- PORTFOLIO GRID --- */
+    #portfolio {
+      padding: 8rem 3.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 4.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .section-eyebrow {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.62rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .section-eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px; height: 1px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      line-height: 1.1;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .section-link {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--warm-grey);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s;
+      cursor: none;
+      padding-bottom: 0.5rem;
+    }
+    .section-link svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .section-link:hover { color: var(--ink); }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+      background: #2a2520;
+    }
+    .project-card:nth-child(1) { grid-column: 1 / 8; grid-row: 1; aspect-ratio: 16/10; }
+    .project-card:nth-child(2) { grid-column: 8 / 13; grid-row: 1; aspect-ratio: 4/5; }
+    .project-card:nth-child(3) { grid-column: 1 / 5; grid-row: 2; aspect-ratio: 4/3; }
+    .project-card:nth-child(4) { grid-column: 5 / 9; grid-row: 2; aspect-ratio: 4/3; }
+    .project-card:nth-child(5) { grid-column: 9 / 13; grid-row: 2; aspect-ratio: 4/3; }
+
+    .card-photo-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #2a2520, #3d3830);
+      transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .project-card:hover .card-photo-bg { transform: scale(1.05); }
+
+    /* Architectural lines in card placeholder */
+    .card-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.12;
+    }
+    .card-lines svg { width: 60%; height: 60%; stroke: var(--ivory); fill: none; stroke-width: 0.5; }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(to top, rgba(26,23,20,0.82) 0%, transparent 55%);
+      opacity: 0.7;
+      transition: opacity 0.4s ease;
+    }
+    .project-card:hover .card-overlay { opacity: 1; }
+
+    .card-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 3;
+      padding: 1.8rem;
+      transform: translateY(12px);
+      transition: transform 0.4s ease;
+    }
+    .project-card:hover .card-content { transform: translateY(0); }
+
+    .card-type {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.58rem;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.2rem;
+      color: var(--ivory);
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+    .card-meta {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      color: rgba(245,242,237,0.45);
+      margin-top: 0.5rem;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s;
+    }
+    .project-card:hover .card-meta { opacity: 1; transform: translateY(0); }
+
+    /* Photo placeholder label in cards */
+    .card-photo-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .card-photo-label p {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ivory);
+    }
+
+    /* --- ABOUT STRIP --- */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 560px;
+    }
+
+    .about-image-panel {
+      position: relative;
+      background: linear-gradient(135deg, #2a2520 0%, #3d3830 100%);
+      overflow: hidden;
+      min-height: 480px;
+    }
+    .about-image-lines {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.08;
+    }
+    .about-image-lines svg { width: 70%; stroke: var(--ivory); fill: none; stroke-width: 0.4; }
+    .about-photo-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+      opacity: 0.35;
+    }
+    .about-photo-label p {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ivory);
+    }
+    .about-accent-bar {
+      position: absolute;
+      left: 0;
+      top: 15%; bottom: 15%;
+      width: 3px;
+      background: var(--accent);
+    }
+
+    .about-text-panel {
+      background: var(--ink);
+      padding: 6rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .about-text-panel .section-eyebrow { margin-bottom: 1.5rem; }
+    .about-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+      line-height: 1.15;
+      color: var(--ivory);
+      letter-spacing: -0.01em;
+      margin-bottom: 2rem;
+    }
+    .about-title em { font-style: italic; color: var(--accent); }
+    .about-body {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.88rem;
+      line-height: 1.85;
+      color: rgba(245,242,237,0.55);
+      margin-bottom: 1.2rem;
+      max-width: 420px;
+    }
+    .about-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid rgba(245,242,237,0.08);
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 2.8rem;
+      color: var(--ivory);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-label {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.35);
+    }
+
+    /* --- SERVICES --- */
+    #services {
+      padding: 8rem 3.5rem;
+      background: var(--ivory);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      margin-top: 4.5rem;
+      border-top: 1px solid var(--rule);
+    }
+    .service-item {
+      padding: 3.5rem 2.5rem 3.5rem 0;
+      border-right: 1px solid var(--rule);
+      position: relative;
+      transition: background 0.3s ease;
+    }
+    .service-item:last-child { border-right: none; padding-right: 0; }
+    .service-item:not(:first-child) { padding-left: 2.5rem; }
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 3.5rem;
+      color: rgba(26,23,20,0.07);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    .service-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 1.4rem;
+      color: var(--ink);
+      margin-bottom: 1rem;
+      letter-spacing: 0.01em;
+    }
+    .service-desc {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: var(--warm-grey);
+    }
+    .service-bar {
+      position: absolute;
+      top: 0; left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.5s cubic-bezier(0.77,0,0.18,1);
+    }
+    .service-item:hover .service-bar { width: 100%; }
+    .service-item:last-child .service-bar { width: 0; }
+    .service-item:last-child:hover .service-bar { width: 100%; }
+
+    /* --- CONTACT --- */
+    #contact {
+      background: var(--ink);
+      padding: 9rem 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4rem;
+    }
+    .contact-left { flex: 1; max-width: 520px; }
+    .contact-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      line-height: 1.05;
+      color: var(--ivory);
+      letter-spacing: -0.01em;
+      margin-bottom: 2rem;
+    }
+    .contact-headline em { font-style: italic; color: var(--accent); }
+    .contact-body {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.85rem;
+      line-height: 1.85;
+      color: rgba(245,242,237,0.45);
+      max-width: 360px;
+      margin-bottom: 3rem;
+    }
+    .contact-right {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+    .contact-info {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.35);
+    }
+    .contact-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.1rem;
+      color: var(--ivory);
+      text-decoration: none;
+      display: block;
+      margin-top: 0.3rem;
+      letter-spacing: 0.02em;
+      transition: color 0.3s;
+      cursor: none;
+    }
+    .contact-val:hover { color: var(--accent); }
+    .contact-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(245,242,237,0.08);
+    }
+    .btn-primary-inv {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ivory);
+      background: transparent;
+      border: 1px solid rgba(245,242,237,0.25);
+      padding: 1.1rem 2.4rem;
+      text-decoration: none;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.35s, border-color 0.35s;
+    }
+    .btn-primary-inv::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: translateX(-101%);
+      transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+    .btn-primary-inv:hover { border-color: var(--accent); color: var(--ink); }
+    .btn-primary-inv:hover::before { transform: translateX(0); }
+    .btn-primary-inv span { position: relative; z-index: 1; }
+    .btn-primary-inv svg {
+      position: relative; z-index: 1;
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 1.5;
+      transition: transform 0.3s ease;
+    }
+    .btn-primary-inv:hover svg { transform: translateX(4px); }
+
+    /* --- FOOTER --- */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,242,237,0.06);
+      padding: 2.5rem 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-copy {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.2);
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .footer-links a {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.2);
+      text-decoration: none;
+      transition: color 0.3s;
+      cursor: none;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* --- KEYFRAMES --- */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      header { padding: 1.5rem 1.5rem; }
+      .hero-content { padding: 0 1.5rem 4rem; }
+      #portfolio { padding: 5rem 1.5rem; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .project-card { grid-column: 1 !important; grid-row: auto !important; aspect-ratio: 16/9 !important; }
+      #about { grid-template-columns: 1fr; }
+      .about-text-panel { padding: 4rem 1.5rem; }
+      #services { padding: 5rem 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-item { border-right: none; border-bottom: 1px solid var(--rule); padding: 2.5rem 0; }
+      #contact { flex-direction: column; padding: 5rem 1.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header id="header">
+    <a href="#" class="logo">
+      Jill Olsen
+      <span>Architecture Studio</span>
+    </a>
+    <nav>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <!-- Hero image zone -->
+    <div class="hero-image-area">
+      <!-- Replace the div below with <img src="your-hero.jpg" class="hero-photo-placeholder" style="opacity:1" alt="..."> -->
+      <div style="width:100%;height:100%;"></div>
+    </div>
+
+    <div class="hero-veil"></div>
+
+    <!-- Decorative rule lines -->
+    <div class="hero-rule-left">
+      <div class="rl rl-long"></div>
+      <div class="rl rl-short"></div>
+    </div>
+
+    <!-- Photo placeholder indicator -->
+    <div class="photo-tag">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <p>Add hero image</p>
+    </div>
+
+    <!-- Content -->
+    <div class="hero-content">
+      <p class="hero-label">Licensed Architect · Fargo, ND</p>
+      <h1 class="hero-headline">Designing<br><em>Elevated</em> Spaces</h1>
+      <p class="hero-sub">Architecture that endures — crafted with intention, precision, and a deep respect for how people inhabit their world.</p>
+      <div class="hero-ctas">
+        <a href="#portfolio" class="btn-primary">
+          <span>View Projects</span>
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#contact" class="btn-text">Start a Project</a>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ===== MARQUEE ===== -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <!-- Repeated twice for seamless loop -->
+      <div class="marquee-item"><span>Residential Design</span><div class="marquee-dot"></div><span>Commercial Architecture</span><div class="marquee-dot"></div><span>Short-Term Rental Conversions</span><div class="marquee-dot"></div><span>Interior Space Planning</span><div class="marquee-dot"></div><span>Renovation &amp; Adaptive Reuse</span><div class="marquee-dot"></div><span>Site Analysis</span><div class="marquee-dot"></div><span>Construction Documentation</span><div class="marquee-dot"></div></div>
+      <div class="marquee-item"><span>Residential Design</span><div class="marquee-dot"></div><span>Commercial Architecture</span><div class="marquee-dot"></div><span>Short-Term Rental Conversions</span><div class="marquee-dot"></div><span>Interior Space Planning</span><div class="marquee-dot"></div><span>Renovation &amp; Adaptive Reuse</span><div class="marquee-dot"></div><span>Site Analysis</span><div class="marquee-dot"></div><span>Construction Documentation</span><div class="marquee-dot"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== PORTFOLIO ===== -->
+  <section id="portfolio">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">Selected Work</p>
+        <h2 class="section-title">Recent Projects</h2>
+      </div>
+      <a href="#" class="section-link">
+        Full Portfolio
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <div class="portfolio-grid">
+
+      <!-- Card 1 – Large left -->
+      <div class="project-card">
+        <div class="card-photo-bg"></div>
+        <div class="card-lines">
+          <svg viewBox="0 0 300 200"><rect x="20" y="20" width="260" height="160"/><line x1="20" y1="100" x2="280" y2="100"/><line x1="150" y1="20" x2="150" y2="180"/><rect x="60" y="60" width="80" height="80"/><rect x="160" y="40" width="100" height="50"/><rect x="160" y="110" width="100" height="50"/></svg>
+        </div>
+        <div class="card-photo-label"><p>Add project photo</p></div>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <p class="card-type">Residential</p>
+          <p class="card-name">Riverfront Residence</p>
+          <p class="card-meta">Fargo, ND · 2024</p>
+        </div>
+      </div>
+
+      <!-- Card 2 – Right tall -->
+      <div class="project-card">
+        <div class="card-photo-bg"></div>
+        <div class="card-lines">
+          <svg viewBox="0 0 200 300"><rect x="20" y="20" width="160" height="260"/><line x1="100" y1="20" x2="100" y2="280"/><line x1="20" y1="150" x2="180" y2="150"/><circle cx="100" cy="150" r="40"/></svg>
+        </div>
+        <div class="card-photo-label"><p>Add project photo</p></div>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <p class="card-type">Commercial</p>
+          <p class="card-name">The Loft — STR Conversion</p>
+          <p class="card-meta">Downtown Fargo · 2023</p>
+        </div>
+      </div>
+
+      <!-- Cards 3–5 -->
+      <div class="project-card">
+        <div class="card-photo-bg"></div>
+        <div class="card-lines">
+          <svg viewBox="0 0 200 150"><rect x="10" y="10" width="180" height="130"/><polyline points="10,140 100,30 190,140"/></svg>
+        </div>
+        <div class="card-photo-label"><p>Add project photo</p></div>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <p class="card-type">Renovation</p>
+          <p class="card-name">Prairie Modern Remodel</p>
+          <p class="card-meta">West Fargo · 2024</p>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="card-photo-bg"></div>
+        <div class="card-lines">
+          <svg viewBox="0 0 200 150"><rect x="10" y="10" width="80" height="130"/><rect x="110" y="10" width="80" height="130"/><line x1="90" y1="75" x2="110" y2="75"/></svg>
+        </div>
+        <div class="card-photo-label"><p>Add project photo</p></div>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <p class="card-type">Mixed-Use</p>
+          <p class="card-name">Harwood Flex Studio</p>
+          <p class="card-meta">Harwood, ND · 2023</p>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="card-photo-bg"></div>
+        <div class="card-lines">
+          <svg viewBox="0 0 200 150"><circle cx="100" cy="75" r="60"/><line x1="40" y1="75" x2="160" y2="75"/><line x1="100" y1="15" x2="100" y2="135"/></svg>
+        </div>
+        <div class="card-photo-label"><p>Add project photo</p></div>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <p class="card-type">Hospitality</p>
+          <p class="card-name">Boutique Guest Suite</p>
+          <p class="card-meta">Fargo, ND · 2022</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section id="about">
+    <div class="about-image-panel">
+      <div class="about-image-lines">
+        <svg viewBox="0 0 400 500"><rect x="30" y="30" width="340" height="440"/><line x1="30" y1="250" x2="370" y2="250"/><line x1="200" y1="30" x2="200" y2="470"/><circle cx="200" cy="250" r="80"/><rect x="80" y="100" width="100" height="140"/><rect x="220" y="280" width="100" height="140"/></svg>
+      </div>
+      <div class="about-accent-bar"></div>
+      <!-- Replace the block below with <img src="your-portrait.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" alt="Jill Olsen"> -->
+      <div class="about-photo-label"><p>Add portrait photo</p></div>
+    </div>
+
+    <div class="about-text-panel">
+      <p class="section-eyebrow">The Studio</p>
+      <h2 class="about-title">Architecture as<br><em>craft & conviction</em></h2>
+      <p class="about-body">I'm Jill Olsen, a licensed architect based in Fargo, North Dakota. My practice spans residential design, commercial architecture, and short-term rental transformations — work where spatial quality translates directly into lived experience and investment returns.</p>
+      <p class="about-body">Every project begins with a thorough listening process. I believe the best buildings emerge from deep collaboration between architect, client, and site — where program, material, and light come together with intention.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">12+</div>
+          <div class="stat-label">Years Practice</div>
+        </div>
+        <div>
+          <div class="stat-num">60+</div>
+          <div class="stat-label">Projects Completed</div>
+        </div>
+        <div>
+          <div class="stat-num">ND</div>
+          <div class="stat-label">Licensed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SERVICES ===== -->
+  <section id="services">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">What I Offer</p>
+        <h2 class="section-title">Services</h2>
+      </div>
+    </div>
+    <div class="services-grid">
+      <div class="service-item">
+        <div class="service-bar"></div>
+        <div class="service-num">01</div>
+        <h3 class="service-name">Residential Design</h3>
+        <p class="service-desc">Custom homes, additions, and renovations designed around how you actually live — with attention to flow, light, and enduring material quality.</p>
+      </div>
+      <div class="service-item">
+        <div class="service-bar"></div>
+        <div class="service-num">02</div>
+        <h3 class="service-name">STR & Investment Properties</h3>
+        <p class="service-desc">Specialized design for short-term rental and investor clients — maximizing guest experience, rental yield, and the architectural details that earn five-star reviews.</p>
+      </div>
+      <div class="service-item">
+        <div class="service-bar"></div>
+        <div class="service-num">03</div>
+        <h3 class="service-name">Commercial & Mixed-Use</h3>
+        <p class="service-desc">Workplaces, retail environments, and mixed-use buildings that balance brand identity with functional excellence and code-compliant construction documentation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section id="contact">
+    <div class="contact-left">
+      <p class="section-eyebrow" style="color:var(--accent);margin-bottom:1.5rem;">Get in Touch</p>
+      <h2 class="contact-headline">Let's build<br>something<br><em>remarkable.</em></h2>
+      <p class="contact-body">Whether you have a fully realized brief or a sketch on a napkin, I'd love to hear about your project. Reach out and let's start a conversation.</p>
+      <a href="mailto:hello@jillolsenarchitecture.com" class="btn-primary-inv">
+        <span>Send a Message</span>
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+    <div class="contact-right">
+      <div>
+        <p class="contact-info">Email</p>
+        <a href="mailto:hello@jillolsenarchitecture.com" class="contact-val">hello@jillolsenarchitecture.com</a>
+      </div>
+      <div class="contact-divider"></div>
+      <div>
+        <p class="contact-info">Phone</p>
+        <a href="tel:+17015550000" class="contact-val">(701) 555-0000</a>
+      </div>
+      <div class="contact-divider"></div>
+      <div>
+        <p class="contact-info">Location</p>
+        <span class="contact-val" style="cursor:default;">Fargo, North Dakota</span>
+      </div>
+      <div class="contact-divider"></div>
+      <div>
+        <p class="contact-info">Follow</p>
+        <div style="display:flex;gap:1.5rem;margin-top:0.5rem;">
+          <a href="#" class="contact-val" style="font-size:0.72rem;letter-spacing:0.18em;">Instagram</a>
+          <a href="#" class="contact-val" style="font-size:0.72rem;letter-spacing:0.18em;">Houzz</a>
+          <a href="#" class="contact-val" style="font-size:0.72rem;letter-spacing:0.18em;">Archinect</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p class="footer-copy">© 2025 Jill Olsen Architecture Studio · All Rights Reserved</p>
+    <div class="footer-links">
+      <a href="#portfolio">Portfolio</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .project-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+
+    // Scrolled header
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+    });
+  </script>
+</body>
+</html>
